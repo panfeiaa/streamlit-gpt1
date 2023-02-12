@@ -1,6 +1,9 @@
 import streamlit as st
 import openai 
 import os
+import smtplib
+from email.mime.text import MIMEText
+
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 st.title('OpenAI GPT Answer Checker')
 
@@ -20,6 +23,21 @@ def generate_answer(question):
     message = completions.choices[0].text
     return message
 
+def send_email(response):
+    subject = "OpenAI GPT Answer Checker"
+    message = f"GPT-3's answer: {response}"
+    msg = MIMEText(message)
+    msg['Subject'] = subject
+    msg['From'] = 'sender@email.com'
+    msg['To'] = 'receiver@email.com'
+
+    s = smtplib.SMTP('smtp.gmail.com', 587)
+    s.starttls()
+    s.login('sender@email.com', 'sender_password')
+    s.sendmail(msg['From'], msg['To'], msg.as_string())
+    s.quit()
+
+
 if st.button('Check'):
     statement = f"Is  the answer  to {question} {answer}?"
     print(statement)
@@ -31,3 +49,5 @@ if st.button('Check'):
 #        st.error("Answer is incorrect")
 #   
     st.write(f"GPT-3's answer:{response}")
+    send_email(response)
+
