@@ -1,0 +1,5 @@
+# streamlit-gpt1
+streamlit-gpt0
+本人是一个非技术人员，接触到chatgpt后，第一次想使用streamlit、netlify和chatgpt来构建一个自己的application。 
+主要是用于测试 edu9.py是我的第一个测试脚本，用于问问题给chatgpt，并且由gpt来判断你的答案是否正确。 
+因为chatgpt是很智能的，目前在构思一个更好的中文提问方式来补充代码，从而实现更好的和gpt交互
