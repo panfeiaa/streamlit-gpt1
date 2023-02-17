@@ -1,8 +1,7 @@
 import streamlit as st
 import openai
 import os
-import smtplib
-import pdfkit
+import weasyprint
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -83,32 +82,22 @@ def send_email(response):
         """)
     html = template.render(text=message)
 
-    # 使用 pdfkit 将 HTML 页面转换为 PDF 文件
-    html_filename = "openai_response.html"
-    with open(html_filename, "w") as f:
-        f.write(html)
+    pdf_bytes = weasyprint.HTML(string=html).write_pdf()
 
-    # 使用 pdfkit 将 HTML 文件转换为 PDF 文件
-    pdf_filename = "openai_response.pdf"
-    options = {
-        'page-size': 'Letter',
-        'margin-top': '0.75in',
-        'margin-right': '0.75in',
-        'margin-bottom': '0.75in',
-        'margin-left': '0.75in',
-        'encoding': "UTF-8",
-        'no-outline': None
-    }
-    pdfkit.from_file(html_filename, pdf_filename, options=options)
+    # 将 PDF 写入文件
+    with open("output.pdf", "wb") as f:
+        f.write(pdf_bytes)
+    
+    
 
     # 添加附件
-    with open(pdf_filename, 'rb') as f:
+    with open("output.pdf", 'rb') as f:
         attachment = MIMEApplication(f.read(), _subtype='pdf')
-        attachment.add_header('Content-Disposition', 'attachment', filename=pdf_filename)
+        attachment.add_header('Content-Disposition', 'attachment', filename="output.pdf")
         msg.attach(attachment)
 
     # 删除临时文件
-    os.remove(html_filename)
+    os.remove(pdf_bytes)
 
     # 发送邮件
     with smtplib.SMTP(smtp_server) as server:
