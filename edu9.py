@@ -24,16 +24,17 @@ def generate_answer(question):
     return message
 
 def send_email(response):
+    question = st.text_input("Q: What is your email?")
     subject = "OpenAI GPT Answer Checker"
     message = f"GPT-3's answer: {response}"
     msg = MIMEText(message)
     msg['Subject'] = subject
-    msg['From'] = 'sender@email.com'
-    msg['To'] = 'receiver@email.com'
+    msg['From'] = '305243464@qq.com'
+    msg['To'] = question
 
-    s = smtplib.SMTP('smtp.gmail.com', 587)
+    s = smtplib.SMTP('smtp.qq.com', 587)
     s.starttls()
-    s.login('sender@email.com', 'sender_password')
+    s.login('305243464@qq.com', 'zdmpzrjrpqeqbgdc')
     s.sendmail(msg['From'], msg['To'], msg.as_string())
     s.quit()
 
