@@ -67,9 +67,16 @@ def send_email(response):
 
 
     # 发送邮件
-    with smtplib.SMTP(smtp_server) as server:
-        server.login(from_email, 'zdmpzrjrpqeqbgdc')
-        server.sendmail(from_email, to_email, msg.as_string())
+#    with smtplib.SMTP(smtp_server) as server:
+#       server.login(from_email, 'zdmpzrjrpqeqbgdc')
+#       server.sendmail(from_email, to_email, msg.as_string())
+    try:
+        smtpObj = smtplib.SMTP_SSL(mail_host, 465)  # 启用SSL发信, 端口一般是465
+        smtpObj.login(from_email, 'zdmpzrjrpqeqbgdc')  # 登录验证
+        smtpObj.sendmail(from_email, to_email, msg.as_string())  # 发送
+        print("mail has been send successfully.")
+    except smtplib.SMTPException as e:
+         print(e)
 
 if st.button('Check'):
     statement = f"Is  the answer  to {question} {answer}?"
