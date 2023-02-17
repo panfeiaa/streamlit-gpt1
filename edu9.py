@@ -2,16 +2,18 @@ import streamlit as st
 import openai
 import os
 import smtplib
+#import platform
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
-
+import tkinter as tk
 try:
     from google.protobuf.internal import api_implementation
 except ImportError:
     # For older versions of protobuf
     from google.protobuf import api_implementation
-import jinja2
+#if platform.system() == "Darwin":
+#    os.environ['TCL_LIBRARY'] = "/Library/Frameworks/Tcl.framework/Versions/8.6/Resources/Scripts"
+#    os.environ['TK_LIBRARY'] = "/Library/Frameworks/Tk.framework/Versions/8.6/Resources/Scripts"
 
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 st.title('OpenAI GPT Answer Checker')
@@ -35,17 +37,22 @@ def generate_answer(question):
 
 
 def send_email(response):
-    question = st.text_input("Q: What is your email,if you want receive the results?")
+    window = tk.Tk()
+    window.title("发送邮件")
+    email_entry = tk.Entry(window)
+    email_entry.grid(row=0, column=1)
+    tk.Label(window, text="收件人地址：").grid(row=0, column=0)
+    recipient = email_entry.get()
     subject = "OpenAI GPT Answer Checker"
     message = f"GPT-3's answer: {response}"
     # 邮件服务器地址
-    smtp_server = 'smtp.qq.com'
+    smtp_server = 'smtp.163.com'
 
     # 发件人地址
-    from_email = '305243464@qq.com'
+    from_email = 'pf305243464@163.com'
     print(question)
     # 收件人地址
-    to_email = question
+    to_email = recipient
 
     # 邮件主题
     subject = 'chatgpt Email'
@@ -72,7 +79,7 @@ def send_email(response):
 #       server.sendmail(from_email, to_email, msg.as_string())
     try:
         smtpObj = smtplib.SMTP_SSL(smtp_server, 465)  # 启用SSL发信, 端口一般是465
-        smtpObj.login(from_email, 'zdmpzrjrpqeqbgdc')  # 登录验证
+        smtpObj.login(from_email, 'VRFQJIMZRCUFAPBB')  # 登录验证
         smtpObj.sendmail(from_email, to_email, msg.as_string())  # 发送
         print("mail has been send successfully.")
     except smtplib.SMTPException as e:
@@ -89,4 +96,6 @@ if st.button('Check'):
     #        st.error("Answer is incorrect")
     #
     st.write(f"GPT-3's answer:{response}")
-    send_email(response)
+    window1 = tk.Tk()
+    tk.Button(window1, text="发送邮件", command=send_email(response)).grid(row=2, column=1)
+
