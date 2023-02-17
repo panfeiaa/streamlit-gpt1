@@ -1,7 +1,6 @@
 import streamlit as st
 import openai
 import os
-import weasyprint
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -65,39 +64,7 @@ def send_email(response):
     # 将正文添加到邮件中
     text = MIMEText(body)
     msg.attach(text)
-    # 将回答生成为 HTML 页面
 
-
-    template = jinja2.Template("""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <title>OpenAI API Response</title>
-        </head>
-        <body>
-            <p>{{ text }}</p>
-        </body>
-        </html>
-        """)
-    html = template.render(text=message)
-
-    pdf_bytes = weasyprint.HTML(string=html).write_pdf()
-
-    # 将 PDF 写入文件
-    with open("output.pdf", "wb") as f:
-        f.write(pdf_bytes)
-    
-    
-
-    # 添加附件
-    with open("output.pdf", 'rb') as f:
-        attachment = MIMEApplication(f.read(), _subtype='pdf')
-        attachment.add_header('Content-Disposition', 'attachment', filename="output.pdf")
-        msg.attach(attachment)
-
-    # 删除临时文件
-    os.remove(pdf_bytes)
 
     # 发送邮件
     with smtplib.SMTP(smtp_server) as server:
