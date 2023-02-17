@@ -7,8 +7,12 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
-
-
+try:
+    from google.protobuf.internal import api_implementation
+except ImportError:
+    # For older versions of protobuf
+    from google.protobuf import api_implementation
+import jinja2
 
 
 openai.api_key = os.environ.get("OPENAI_API_KEY")
@@ -61,27 +65,47 @@ def send_email(response):
     text = MIMEText(body)
     msg.attach(text)
     # 将回答生成为 HTML 页面
-    html = """
+   template = jinja2.Template("""
+    <!DOCTYPE html>
     <html>
-      <head>
-        <meta charset='utf-8'>
-      </head>
-      <body>
-        <h1>ChatGPT's Answer:</h1>
-        <p>{}</p>
-      </body>
+    <head>
+        <meta charset="utf-8">
+        <title>OpenAI API Response</title>
+    </head>
+    <body>
+        <p>{{ text }}</p>
+    </body>
     </html>
-    """.format(response)
+    """)
+    html = template.render(text=message)
 
     # 使用 pdfkit 将 HTML 页面转换为 PDF 文件
-    pdfkit.from_string(html, 'chatgpt_answer.pdf')
+    html_filename = "openai_response.html"
+    with open(html_filename, "w") as f:
+        f.write(html)
+        
+    # 使用 pdfkit 将 HTML 文件转换为 PDF 文件
+    pdf_filename = "openai_response.pdf"
+    options = {
+        'page-size': 'Letter',
+        'margin-top': '0.75in',
+        'margin-right': '0.75in',
+        'margin-bottom': '0.75in',
+        'margin-left': '0.75in',
+        'encoding': "UTF-8",
+        'no-outline': None
+    }
+    pdfkit.from_file(html_filename, pdf_filename, options=options)
 
     # 添加附件
-    with open('attachment.pdf', 'rb') as f:
+    with open(pdf_filename, 'rb') as f:
         attachment = MIMEApplication(f.read(), _subtype='pdf')
-        attachment.add_header('Content-Disposition', 'attachment', filename='chatgpt_answer.pdf')
+        attachment.add_header('Content-Disposition', 'attachment', filename=pdf_filename)
         msg.attach(attachment)
-
+        
+    # 删除临时文件
+    os.remove(html_filename)
+    
     # 发送邮件
     with smtplib.SMTP(smtp_server) as server:
         server.login(from_email, 'zdmpzrjrpqeqbgdc')
